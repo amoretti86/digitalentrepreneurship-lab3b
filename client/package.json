@@ -3,10 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mapbox/mapbox-gl-geocoder": "^5.0.3",
+    "@mapbox/search-js-core": "^1.0.0",
+    "@mapbox/search-js-react": "^1.0.0",
     "axios": "^0.21.1",
+    "mapbox-gl": "^3.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-map-gl": "^8.0.2",
     "react-scripts": "5.0.1",
+    "react-select": "^5.10.1",
     "web-vitals": "^4.2.4"
   },
   "scripts": {
@@ -15,7 +21,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5002",
   "browserslist": {
     "production": [
       ">0.2%",
