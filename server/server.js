@@ -3,20 +3,12 @@ const express = require('express');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
-const onboardPatientRoutes = require('./routes/onboardPatient');
-const uploadInsuranceRoutes = require('./routes/uploadInsurance');
-
-
 
 // Initialize Supabase client
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const app = express();
 app.use(express.json());
-
-// Routes for handling patient onboarding and insurance uploads
-app.use('/onboard-patient', onboardPatientRoutes);
-app.use('/upload-insurance', uploadInsuranceRoutes);
 
 // Serve static files from React build folder
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -27,20 +19,21 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Registration endpoint using Supabase Auth
 app.post('/register', async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
     console.log(`Received registration request for email: ${email}`);
 
+    // Email validation
+    const emailPattern = /@(spelman\.edu|morehouse\.edu)$/;
+    if (!emailPattern.test(email)) {
+        return res.status(400).json({ success: false, message: 'Email must end with @spelman.edu or @morehouse.edu.' });
+    }
+
     try {
-        // Register user in Supabase Auth with custom metadata (name, role)
+        // Register user in Supabase Auth
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
-            options: {
-                data: {
-                    name,
-                    role
-                }
-            }
+            options: { data: { name } } // Store additional user info
         });
 
         if (error) throw error;
@@ -61,8 +54,7 @@ app.post('/login', async (req, res) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
-        const user = data.user;
-        res.json({ success: true, message: 'Login successful', user });
+        res.json({ success: true, message: 'Login successful', user: data.user });
     } catch (error) {
         console.error('Login error:', error);
         res.status(401).json({ success: false, message: 'Invalid email or password' });

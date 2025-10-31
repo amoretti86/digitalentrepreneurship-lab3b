@@ -1,0 +1,151 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    background-color: #ffe6f2; /* Soft pink background */
+    font-family: 'Poppins', sans-serif;
+    color: #5a1a5b;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.App {
+    text-align: center;
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 350px;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #ff4d94; /* Bright pink */
+    margin-bottom: 20px;
+}
+
+/* ADDED: h2 heading style for "Verify Your Email" and dashboard headings */
+h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ff4d94; /* Bright pink */
+    margin-bottom: 15px;
+}
+
+/* ADDED: h3 heading style for "Hello, [name]!" in dashboard */
+h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ff4d94; /* Bright pink */
+    margin-bottom: 10px;
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 0 5px;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    border: 2px solid #ff99c8;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+}
+
+input:focus {
+    border-color: #ff4d94;
+    box-shadow: 0 0 8px rgba(255, 77, 148, 0.5);
+}
+
+/* Button Styling */
+button {
+    background: linear-gradient(135deg, #ff66b2, #ff3385);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    margin-top: 15px;
+    width: 100%;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #ff3385, #ff66b2);
+    transform: scale(1.05);
+}
+
+/* Message Styling */
+.success {
+    color: #00c851;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.error {
+    color: #ff4444;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+/* ADDED: Generic message class for status messages */
+.message {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+/* ADDED: Dashboard Styles Section - Begin */
+/* Dashboard container */
+.dashboard {
+    text-align: center;
+}
+
+/* User greeting section with bottom border */
+.user-greeting {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ff99c8;
+}
+
+/* Styling for the email display in user greeting */
+.user-greeting p {
+    color: #5a1a5b;
+    font-size: 14px;
+}
+
+/* Main content area of dashboard */
+.dashboard-content {
+    min-height: 60px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #5a1a5b;
+}
+
+/* Special styling for logout button - red gradient */
+.logout-btn {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+}
+
+/* Hover effect for logout button */
+.logout-btn:hover {
+    background: linear-gradient(135deg, #cc0000, #ff4444);
+}
+/* ADDED: Dashboard Styles Section - End */

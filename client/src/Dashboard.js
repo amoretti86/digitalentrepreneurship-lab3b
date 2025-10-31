@@ -1,5 +1,5 @@
 import React from 'react';
-
+import './Dashboard.css';
 
 function Dashboard({ name, email, onLogout }) {
   return (
