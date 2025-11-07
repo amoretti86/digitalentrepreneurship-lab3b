@@ -473,6 +473,12 @@ Now we're ready to create our app:
 heroku create your-app-name
 ```
 
+Note: if you created the app from the user interface, you will need to run
+
+```bash
+heroku git:remote -a your-app-name
+```
+
 **Step 2: Set Environment Variables**
 
 ```bash
