@@ -4,8 +4,22 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
-// Initialize Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Supabase now issues "secret" keys (sb_secret_...) in place of the legacy service_role key.
+// Either one works here; the legacy name is kept as a fallback for older projects.
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+    console.error('Missing SUPABASE_URL or SUPABASE_SECRET_KEY. Copy .env.example to .env and fill it in (or set Heroku config vars).');
+    process.exit(1);
+}
+
+// Initialize Supabase client.
+// This one client is shared by every request, so don't let it remember a logged-in user's session
+// (otherwise one student's login would change the credentials used for everyone else's requests).
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false }
+});
 
 const app = express();
 app.use(express.json());
@@ -54,7 +68,9 @@ app.post('/login', async (req, res) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
-        res.json({ success: true, message: 'Login successful', user: data.user });
+        // The name was saved in user_metadata at signup; the frontend shows it on the dashboard
+        const name = data.user.user_metadata?.name;
+        res.json({ success: true, message: 'Login successful', name, user: data.user });
     } catch (error) {
         console.error('Login error:', error);
         res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -91,7 +107,7 @@ app.get('*', (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

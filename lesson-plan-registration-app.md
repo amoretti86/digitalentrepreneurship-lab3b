@@ -5,6 +5,8 @@
 **Level:** Intermediate  
 **Prerequisites:** Basic JavaScript, Node.js, and React knowledge
 
+> **Note (Oct 2026):** The setup steps follow the README, which is the source of truth for Supabase and Heroku setup. Some code snippets in Parts 4-6 (route names like `/api/auth/signup`, storing tokens in localStorage) are simplified teaching versions. The actual routes are `/register`, `/verify` and `/login` in `server/server.js`.
+
 ---
 
 ## Learning Objectives
@@ -109,24 +111,24 @@ Click 'Create new project' and wait about 30 seconds while Supabase provisions y
 
 **Step 3: Get Your API Keys**
 
-Once your project is ready, go to Settings → API.
+Once your project is ready, you need two values:
+1. **Project URL** (Project Settings → Data API, or the **Connect** button) - This is your Supabase backend endpoint
+2. **Secret key** (Project Settings → API Keys, starts with `sb_secret_`) - This is for server-side operations (secret, never expose!)
 
-You'll see three important values:
-1. **Project URL** - This is your Supabase backend endpoint
-2. **Anon Key** - This is for client-side operations (public, safe to expose)
-3. **Service Role Key** - This is for server-side operations (secret, never expose!)
+You'll also see a **publishable key** (`sb_publishable_...`). That one is for browser code and is safe to expose, but this app doesn't need it because all Supabase calls happen on our server. (Older guides call these the `service_role` and `anon` keys.)
 
 Copy these values. We'll need them in a moment.
 
+**Before moving on, edit the email template:** Authentication → Emails → **Confirm signup**, and make sure it includes `{{ .Token }}` (the 6-digit code). By default it only contains a link. Also remember that the built-in email sender only delivers to members of your Supabase team, max 2 per hour (see README section 5.4).
+
 **Step 4: Configure Environment Variables**
 
-In your backend folder, create a `.env` file:
+In the repo root (next to `package.json`), copy `.env.example` to `.env` and fill it in:
 
 ```
 SUPABASE_URL=your-project-url-here
-SUPABASE_ANON_KEY=your-anon-key-here
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
-PORT=5000
+SUPABASE_SECRET_KEY=your-secret-key-here
+PORT=5001
 ```
 
 **Important:** Never commit `.env` files to git! They contain secrets.
@@ -157,11 +159,12 @@ require('dotenv').config();
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SECRET_KEY,
+  { auth: { persistSession: false, autoRefreshToken: false } }
 );
 ```
 
-This creates our connection to Supabase. We're using the Service Role Key because we're on the server side and need admin privileges.
+This creates our connection to Supabase. We're using the secret key because we're on the server side and need admin privileges. `persistSession: false` matters because this one client is shared by every request, so it must not remember whoever logged in last.
 
 **Registration Endpoint:**
 
@@ -483,10 +486,10 @@ heroku git:remote -a your-app-name
 
 ```bash
 heroku config:set SUPABASE_URL=your-url
-heroku config:set SUPABASE_ANON_KEY=your-anon-key
-heroku config:set SUPABASE_SERVICE_ROLE_KEY=your-service-key
-heroku config:set PORT=5000
+heroku config:set SUPABASE_SECRET_KEY=your-secret-key
 ```
+
+Don't set `PORT` on Heroku. Heroku assigns it automatically.
 
 **Step 3: Deploy**
 
@@ -494,19 +497,10 @@ heroku config:set PORT=5000
 git add .
 git commit -m "Deploy to Heroku"
 git push heroku main
+heroku open
 ```
 
-**Step 4: Update Frontend API URL**
-
-In your React app, change the API URL from localhost to your Heroku URL:
-
-```javascript
-const API_URL = 'https://your-app-name.herokuapp.com';
-```
-
-**Step 5: Deploy Frontend**
-
-You can deploy the frontend to Vercel, Netlify, or any static hosting service.
+Heroku builds the React app during the push (`heroku-postbuild` in `package.json`), and Express serves it from the same URL as the API. There's no separate frontend deploy and no API URL to change.
 
 That's it! Your app is live!"
 
