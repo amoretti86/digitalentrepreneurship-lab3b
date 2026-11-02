@@ -19,6 +19,7 @@ function App() {
     const [message, setMessage] = useState('');
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
+    const [token, setToken] = useState('');
     
     // NEW: Added authentication mode state to toggle between register and login
     // This controls which form is displayed to the user
@@ -66,8 +67,8 @@ function App() {
             
             if (response.data.success) {
                 // NEW: Store user name from response if available
-                setName(response.data.name || 'User'); // Use name from response or default to 'User'
-                setMessage('Login successful!');
+                setName(response.data.user?.user_metadata?.name || 'User');
+                setToken(response.data.token);
                 // Skip verification for login and go straight to dashboard
                 setIsVerified(true); 
             } else {
@@ -84,6 +85,7 @@ function App() {
             const response = await axios.post('/verify', { email, verificationCode });
             // IMPROVED: Added fallback message
             setMessage(response.data.message || 'Email verified successfully!');
+            setToken(response.data.token);
             
             if (response.data.success) {
                 setIsVerified(true); // Show dashboard
@@ -235,6 +237,7 @@ function App() {
                 <Dashboard 
                     name={name} 
                     email={email} 
+                    token={token}
                     onLogout={handleLogout} 
                 />
             )}
