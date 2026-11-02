@@ -1,5 +1,6 @@
 import React from 'react';
 import './Dashboard.css';
+import MessageBoard from "./MessageBoard";
 
 function Dashboard({ name, email, onLogout }) {
   return (
