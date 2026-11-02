@@ -90,6 +90,51 @@ app.post('/verify', async (req, res) => {
 });
 
 // Fallback route to serve React frontend for any unmatched routes
+// ========================================================
+// Message Board Routes
+// ========================================================
+
+// Work out who is logged in from the token the browser sends
+async function getUserFromRequest(req) {
+    const token = (req.headers.authorization || '').replace('Bearer ', '');
+    if (!token) return null;
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error) return null;
+    return data.user;
+}
+
+// Get the 20 latest messages
+app.get('/messages', async (req, res) => {
+    const user = await getUserFromRequest(req);
+    if (!user) return res.status(401).json({ error: 'Please log in' });
+
+    const { data, error } = await supabase
+        .from('messages')
+        .select('id, content, email, created_at')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
+// Post a new message
+app.post('/messages', async (req, res) => {
+    const user = await getUserFromRequest(req);
+    if (!user) return res.status(401).json({ error: 'Please log in' });
+
+    const content = (req.body.content || '').trim();
+    if (!content || content.length > 500) {
+        return res.status(400).json({ error: 'Message must be 1 to 500 characters' });
+    }
+
+    const { error } = await supabase
+        .from('messages')
+        .insert({ user_id: user.id, email: user.email, content });
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json({ ok: true });
+});
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
