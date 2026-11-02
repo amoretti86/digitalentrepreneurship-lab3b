@@ -58,7 +58,7 @@ app.post('/login', async (req, res) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
-        res.json({ success: true, message: 'Login successful', user: data.user });
+        res.json({ success: true, message: 'Login successful', user: data.user, token: data.session.access_token });
     } catch (error) {
         console.error('Login error:', error);
         res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -135,7 +135,8 @@ app.post('/messages', async (req, res) => {
     if (error) return res.status(500).json({ error: error.message });
     res.status(201).json({ ok: true });
 });
-app.get('*', (req, res) => {
+// Fallback: serve the React app for any other route
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
