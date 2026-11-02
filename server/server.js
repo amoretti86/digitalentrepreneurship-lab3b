@@ -82,7 +82,7 @@ app.post('/verify', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid verification code.' });
         }
 
-        res.json({ success: true, message: 'Email verified successfully' });
+        res.json({ success: true, message: 'Email verified successfully', token: data.session?.access_token });
     } catch (error) {
         console.error('Verification error:', error);
         res.status(500).json({ success: false, message: 'Error verifying email' });
