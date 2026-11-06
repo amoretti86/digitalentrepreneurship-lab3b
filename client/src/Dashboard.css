@@ -148,4 +148,71 @@ button:hover {
 .logout-btn:hover {
     background: linear-gradient(135deg, #cc0000, #ff4444);
 }
+
+
+/* Community Message Board */
+
+.message-board {
+  margin: 30px auto;
+  padding: 24px;
+  max-width: 650px;
+  background-color: #f8f9fc;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.message-board h3 {
+  margin-top: 0;
+}
+
+.message-board textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  margin: 12px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.message-board button {
+  padding: 10px 20px;
+  background-color: #3455a4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.message-board button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.messages-list {
+  margin-top: 15px;
+}
+
+.message-card {
+  padding: 15px;
+  margin-bottom: 12px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.message-card p {
+  margin: 0 0 8px;
+}
+
+.message-card small {
+  color: #666;
+}
+
+.message-error {
+  color: #b00020;
+}
+
 /* ADDED: Dashboard Styles Section - End */
