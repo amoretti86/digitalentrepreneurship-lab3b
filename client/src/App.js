@@ -46,8 +46,13 @@ function App() {
             const response = await axios.post('/register', { name, email, password });
             console.log("Registration API response:", response);
             // Added fallback message in case response doesn't include a message
-            setMessage(response.data.message || 'Verification code sent to your email!');
-            setIsEmailSent(true); // Show verification step
+            if (response.data.success) {
+                setMessage('Registration successful! Check your email and click the confirmation link. Then return here to log in.'
+
+                );
+                setIsEmailSent(false);
+                setAuthMode('login');
+            }
         } catch (error) {
             // IMPROVED: More detailed error message with fallback
             setMessage('Error during registration: ' + (error.response?.data?.message || error.message));
@@ -66,7 +71,7 @@ function App() {
             
             if (response.data.success) {
                 // NEW: Store user name from response if available
-                setName(response.data.name || 'User'); // Use name from response or default to 'User'
+                setName(response.data.user?.user_metadata?.name || 'User'); // Use name from response or default to 'User'
                 setMessage('Login successful!');
                 // Skip verification for login and go straight to dashboard
                 setIsVerified(true); 

@@ -37,8 +37,8 @@ app.post('/register', async (req, res) => {
         });
 
         if (error) throw error;
+        res.json({success: true, message: 'Registration successful! Check your email and click the confirmation link. Then return to the app to log in.'});
 
-        res.json({ success: true, message: 'Registration successful. Check your email for verification.' });
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ success: false, message: error.message || 'Error registering user' });
