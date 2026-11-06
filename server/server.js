@@ -5,7 +5,30 @@ const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 // Initialize Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false
+    }
+  }
+);
+
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false
+    }
+  }
+);
 
 const app = express();
 app.use(express.json());
@@ -54,7 +77,7 @@ app.post('/login', async (req, res) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
-        res.json({ success: true, message: 'Login successful', user: data.user });
+        res.json({success: true, message: 'Login successful', user: data.user, accessToken: data.session.access_token});
     } catch (error) {
         console.error('Login error:', error);
         res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -85,6 +108,90 @@ app.post('/verify', async (req, res) => {
     }
 });
 
+const requireUser = async (req, res, next) => {
+  const authorization = req.headers.authorization || '';
+  const token = authorization.startsWith('Bearer ')
+    ? authorization.slice(7)
+    : null;
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: 'Please log in to continue.'
+    });
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+
+  if (error || !data.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Your session is invalid. Please log in again.'
+    });
+  }
+
+  req.user = data.user;
+  next();
+};
+
+// Get messages
+app.get('/messages', requireUser, async (req, res) => {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('messages')
+      .select('id, user_id, content, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({ success: true, messages: data });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Post a message
+app.post('/messages', requireUser, async (req, res) => {
+  const content = req.body.content;
+
+  if (
+    typeof content !== 'string' ||
+    !content.trim() ||
+    content.trim().length > 1000
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: 'Message must be between 1 and 1000 characters.'
+    });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('messages')
+      .insert({
+        user_id: req.user.id,
+        content: content.trim()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      success: true,
+      message: data
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // Fallback route to serve React frontend for any unmatched routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
@@ -95,3 +202,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+

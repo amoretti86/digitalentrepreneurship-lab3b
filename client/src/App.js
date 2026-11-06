@@ -23,6 +23,7 @@ function App() {
     // NEW: Added authentication mode state to toggle between register and login
     // This controls which form is displayed to the user
     const [authMode, setAuthMode] = useState('register'); // Options: 'register' or 'login'
+    const [accessToken, setAccessToken] = useState('');
     
     // ==========================================
     // EVENT HANDLERS
@@ -68,14 +69,13 @@ function App() {
             // Makes API call to login endpoint with email and password
             const response = await axios.post('/login', { email, password });
             console.log("Login API response:", response);
-            
             if (response.data.success) {
-                // NEW: Store user name from response if available
-                setName(response.data.user?.user_metadata?.name || 'User'); // Use name from response or default to 'User'
+                setName(response.data.user?.user_metadata?.name || 'User');
+                setAccessToken(response.data.accessToken);
                 setMessage('Login successful!');
-                // Skip verification for login and go straight to dashboard
-                setIsVerified(true); 
-            } else {
+                setIsVerified(true);
+            }
+            else {
                 setMessage(response.data.message || 'Login failed. Please check your credentials.');
             }
         } catch (error) {
@@ -108,6 +108,7 @@ function App() {
         setVerificationCode('');
         setIsEmailSent(false);
         setIsVerified(false);
+        setAccessToken('');
     };
 
     // NEW: Function to toggle between register and login modes
@@ -237,13 +238,14 @@ function App() {
                 </>
             ) : (
                 /* Dashboard component remains the same */
-                <Dashboard 
-                    name={name} 
-                    email={email} 
-                    onLogout={handleLogout} 
+                <Dashboard
+                    name={name}
+                    email={email}
+                    accessToken={accessToken}
+                    onLogout={handleLogout}
                 />
             )}
-            
+
             {/* Message display remains the same */}
             {message && <p className="message">{message}</p>}
         </div>
