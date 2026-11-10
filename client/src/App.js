@@ -66,8 +66,7 @@ function App() {
             
             if (response.data.success) {
                 // NEW: Store user name from response if available
-                setName(response.data.name || 'User'); // Use name from response or default to 'User'
-                setMessage('Login successful!');
+                setName(response.data.user?.user_metadata?.name || 'User');                setMessage('Login successful!');
                 // Skip verification for login and go straight to dashboard
                 setIsVerified(true); 
             } else {
